@@ -96,13 +96,13 @@ class PretrainingConfig(object):
         data_dir, "pretrain_tfrecords/pretrain_data.tfrecord*")
     self.vocab_file = os.path.join(data_dir, "vocab.txt")
     self.model_dir = os.path.join(data_dir, "models", model_name)
+    self.init_checkpoint = None if self.debug else self.model_dir
     results_dir = os.path.join(self.model_dir, "results")
     self.results_txt = os.path.join(results_dir, "unsup_results.txt")
     self.results_pkl = os.path.join(results_dir, "unsup_results.pkl")
 
     # update defaults with passed-in hyperparameters
     self.update(kwargs)
-
     self.max_predictions_per_seq = int((self.mask_prob + 0.005) *
                                        self.max_seq_length)
 
@@ -115,21 +115,21 @@ class PretrainingConfig(object):
       self.num_eval_steps = 2
 
     # defaults for different-sized model
-    if self.model_size == "small":
-      self.embedding_size = 128
     # Here are the hyperparameters we used for larger models; see Table 6 in the
     # paper for the full hyperparameters
-    # else:
-    #   self.max_seq_length = 512
-    #   self.learning_rate = 2e-4
-    #   if self.model_size == "base":
-    #     self.embedding_size = 768
-    #     self.generator_hidden_size = 0.33333
-    #     self.train_batch_size = 256
-    #   else:
-    #     self.embedding_size = 1024
-    #     self.mask_prob = 0.25
-    #     self.train_batch_size = 2048
+    if self.model_size == "small":
+      self.embedding_size = 128
+    else:
+      self.max_seq_length = 512
+      self.learning_rate = 2e-4
+      if self.model_size == "base":
+        self.embedding_size = 768
+        self.generator_hidden_size = 0.33333
+        self.train_batch_size = 256
+      else:
+        self.embedding_size = 1024
+        self.mask_prob = 0.25
+        self.train_batch_size = 2048
     if self.electric_objective:
       self.two_tower_generator = True  # electric requires a two-tower generator
 
